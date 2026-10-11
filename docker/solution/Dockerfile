@@ -8,7 +8,11 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 # dist-upgrade выравнивает версии ROS-пакетов базового образа с Nav2 (иначе lifecycle_manager
 # падает без libdiagnostic_updater.so).
-RUN apt-get update && apt-get dist-upgrade -y && apt-get install -y --no-install-recommends \
+# packages.ros.org иногда не резолвится на раннерах CI: повторяем update, пока индекс ROS не скачается.
+RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries \
+ && for i in 1 2 3 4 5; do apt-get update && apt-cache show ros-humble-navigation2 >/dev/null 2>&1 && break; \
+      echo "apt: индекс ROS не получен, попытка $i"; sleep 20; done \
+ && apt-get dist-upgrade -y && apt-get install -y --no-install-recommends \
       ros-humble-navigation2 \
       ros-humble-diagnostic-updater \
       ros-humble-nav2-bringup \

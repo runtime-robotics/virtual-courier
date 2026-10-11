@@ -4,11 +4,11 @@
 
 Образы собирает GitHub Actions (`.github/workflows/images.yml`) при пуше в `main` и публикует в GHCR:
 
-- `ghcr.io/ivanioshpa/virtual-courier-scene:latest` — Webots + ROS 2 + сцена + судья;
-- `ghcr.io/ivanioshpa/virtual-courier-solution:latest` — ROS 2 + Nav2 + slam_toolbox + OpenCV.
+- `ghcr.io/ssskiv/virtual-courier-scene:latest` — Webots + ROS 2 + сцена + судья;
+- `ghcr.io/ssskiv/virtual-courier-solution:latest` — ROS 2 + Nav2 + slam_toolbox + OpenCV.
 
 После первой публикации сделайте пакеты **публичными**: GitHub → Packages → пакет → Package settings → Change visibility.
-Если репозиторий переезжает в организацию, замените `ghcr.io/ivanioshpa` в compose-файлах.
+Если репозиторий переезжает в организацию, замените `ghcr.io/ssskiv` в compose-файлах.
 
 Локальная сборка: `docker compose build`.
 
@@ -26,7 +26,7 @@
 ```bash
 docker run --rm -e VC_SNAPSHOT=/out/final_1.jpg -e SCENARIO=/scenarios/final_1.yaml \
   -v ~/vc-private/scenarios:/scenarios:ro -v /tmp:/out --entrypoint bash \
-  ghcr.io/ivanioshpa/virtual-courier-scene:latest -c \
+  ghcr.io/ssskiv/virtual-courier-scene:latest -c \
   'Xvfb :99 -screen 0 1600x1000x24 & export DISPLAY=:99; sleep 1; source /opt/ros/humble/setup.bash;
    python3 /scene/generator/generate_world.py $SCENARIO --out /scene/webots/worlds --name current &&
    VC_WORLD_META=/scene/webots/worlds/current.json webots --batch --mode=realtime /scene/webots/worlds/current.wbt'

@@ -12,7 +12,7 @@ x-ros-env: &ros-env
 
 services:
   scene:
-    image: ghcr.io/ivanioshpa/virtual-courier-scene:latest
+    image: ghcr.io/ssskiv/virtual-courier-scene:latest
     build: { context: ., dockerfile: docker/scene/Dockerfile }
     container_name: vc_scene
     environment:
@@ -35,7 +35,7 @@ services:
       start_period: 10s
 
   solution:
-    image: ghcr.io/ivanioshpa/virtual-courier-solution:latest
+    image: ghcr.io/ssskiv/virtual-courier-solution:latest
     build: { context: ., dockerfile: docker/solution/Dockerfile }
     container_name: vc_solution
     # command: bash          # раскомментируйте для ручного запуска (docker compose exec solution bash)
