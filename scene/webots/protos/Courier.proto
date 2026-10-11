@@ -1,0 +1,174 @@
+#VRML_SIM R2025a utf8
+# Робот «Courier»: дифференциальная платформа в габаритах робота-пылесоса
+# (Ø 0.35 м) с откидным грузовым лотком, лидаром 360°, камерой и IMU.
+# Оси: x — вперёд, y — влево, z — вверх.
+
+PROTO Courier [
+  field SFVec3f    translation    0 0 0
+  field SFRotation rotation       0 0 1 0
+  field SFString   name           "courier"
+  field SFString   controller     "courier_driver"
+  field MFString   controllerArgs []
+]
+{
+  Robot {
+    translation IS translation
+    rotation IS rotation
+    name IS name
+    controller IS controller
+    controllerArgs IS controllerArgs
+    synchronization TRUE
+    contactMaterial "caster"
+    children [
+      # ---------- корпус ----------
+      Pose {
+        translation 0 0 0.05
+        children [
+          Shape {
+            appearance PBRAppearance { baseColor 0.12 0.13 0.16 roughness 0.5 metalness 0 }
+            geometry Cylinder { height 0.07 radius 0.175 }
+          }
+        ]
+      }
+      # бампер (визуально)
+      Pose {
+        translation 0 0 0.04
+        children [
+          Shape {
+            appearance PBRAppearance { baseColor 0.85 0.45 0.05 roughness 0.6 metalness 0 }
+            geometry Cylinder { height 0.025 radius 0.177 }
+          }
+        ]
+      }
+      # ---------- колёса ----------
+      HingeJoint {
+        jointParameters HingeJointParameters { axis 0 1 0 anchor 0 0.115 0.035 }
+        device [
+          RotationalMotor { name "left_wheel_motor" maxVelocity 25 maxTorque 3 }
+          PositionSensor { name "left_wheel_sensor" }
+        ]
+        endPoint Solid {
+          translation 0 0.115 0.035
+          rotation 1 0 0 1.5708
+          children [
+            DEF WHEEL_SHAPE Shape {
+              appearance PBRAppearance { baseColor 0.05 0.05 0.05 roughness 0.9 metalness 0 }
+              geometry Cylinder { height 0.02 radius 0.035 }
+            }
+          ]
+          name "left_wheel"
+          contactMaterial "wheel"
+          boundingObject Cylinder { height 0.004 radius 0.035 }
+          physics Physics { density -1 mass 0.1 }
+        }
+      }
+      HingeJoint {
+        jointParameters HingeJointParameters { axis 0 1 0 anchor 0 -0.115 0.035 }
+        device [
+          RotationalMotor { name "right_wheel_motor" maxVelocity 25 maxTorque 3 }
+          PositionSensor { name "right_wheel_sensor" }
+        ]
+        endPoint Solid {
+          translation 0 -0.115 0.035
+          rotation 1 0 0 1.5708
+          children [ USE WHEEL_SHAPE ]
+          name "right_wheel"
+          contactMaterial "wheel"
+          boundingObject Cylinder { height 0.004 radius 0.035 }
+          physics Physics { density -1 mass 0.1 }
+        }
+      }
+      # ---------- грузовой лоток (наклоняется назад, ось у заднего края) ----------
+      HingeJoint {
+        jointParameters HingeJointParameters { axis 0 -1 0 anchor -0.16 0 0.088 }
+        device [
+          RotationalMotor { name "tray_motor" maxVelocity 1.5 maxTorque 20 minPosition 0 maxPosition 1.05 }
+          PositionSensor { name "tray_sensor" }
+        ]
+        endPoint Solid {
+          translation -0.07 0 0.092
+          children [
+            DEF TRAY_GROUP Group {
+              children [
+                # дно
+                Shape {
+                  appearance DEF TRAY_APP PBRAppearance { baseColor 0.2 0.45 0.85 roughness 0.5 metalness 0 }
+                  geometry Box { size 0.18 0.22 0.006 }
+                }
+                # передний борт
+                Pose { translation 0.087 0 0.013 children [ Shape { appearance USE TRAY_APP geometry Box { size 0.006 0.22 0.02 } } ] }
+                # боковые борта
+                Pose { translation 0 0.107 0.013 children [ Shape { appearance USE TRAY_APP geometry Box { size 0.18 0.006 0.02 } } ] }
+                Pose { translation 0 -0.107 0.013 children [ Shape { appearance USE TRAY_APP geometry Box { size 0.18 0.006 0.02 } } ] }
+                # задний низкий бортик
+                Pose { translation -0.087 0 0.008 children [ Shape { appearance USE TRAY_APP geometry Box { size 0.006 0.22 0.01 } } ] }
+              ]
+            }
+          ]
+          name "tray"
+          contactMaterial "tray"
+          boundingObject USE TRAY_GROUP
+          physics Physics { density -1 mass 0.15 }
+        }
+      }
+      # ---------- мачта лидара ----------
+      Pose {
+        translation 0.09 0 0.125
+        children [
+          Shape {
+            appearance PBRAppearance { baseColor 0.3 0.3 0.3 roughness 0.5 metalness 0 }
+            geometry Cylinder { height 0.08 radius 0.02 }
+          }
+        ]
+      }
+      Lidar {
+        translation 0.09 0 0.175
+        name "lidar"
+        horizontalResolution 360
+        fieldOfView 6.283185
+        numberOfLayers 1
+        verticalFieldOfView 0.05
+        minRange 0.12
+        maxRange 8
+        noise 0.002
+        resolution 0.005
+        type "fixed"
+        children [
+          Shape {
+            appearance PBRAppearance { baseColor 0.1 0.1 0.1 roughness 0.3 metalness 0 }
+            geometry Cylinder { height 0.03 radius 0.035 }
+          }
+        ]
+      }
+      # ---------- камера ----------
+      Camera {
+        translation 0.178 0 0.07
+        name "camera"
+        fieldOfView 1.085
+        width 640
+        height 480
+        near 0.02
+        far 20
+        children [
+          Pose {
+            translation -0.005 0 0
+            rotation 0 1 0 1.5708
+            children [ Shape { appearance PBRAppearance { baseColor 0 0 0 } geometry Cylinder { height 0.01 radius 0.012 } } ]
+          }
+        ]
+      }
+      # ---------- IMU ----------
+      InertialUnit { name "imu" noise 0.001 }
+      Gyro { name "gyro" lookupTable [ -50 -50 0.005  50 50 0.005 ] }
+      Accelerometer { name "accelerometer" lookupTable [ -100 -100 0.01  100 100 0.01 ] }
+    ]
+    boundingObject Group {
+      children [
+        Pose { translation 0 0 0.05 children [ Cylinder { height 0.07 radius 0.175 } ] }
+        Pose { translation 0.13 0 0.014 children [ Sphere { radius 0.012 } ] }
+        Pose { translation -0.13 0 0.014 children [ Sphere { radius 0.012 } ] }
+      ]
+    }
+    physics Physics { density -1 mass 2.0 centerOfMass [ 0 0 0.03 ] }
+  }
+}

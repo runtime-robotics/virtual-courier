@@ -1,0 +1,11 @@
+results/
+eval_work/
+src/solution/build/
+src/solution/install/
+src/solution/log/
+scene/webots/worlds/*.wbt
+scene/webots/worlds/*.json
+scene/webots/worlds/.*.wbproj
+__pycache__/
+*.pyc
+.vscode/

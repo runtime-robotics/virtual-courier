@@ -1,0 +1,59 @@
+# Виртуальный курьер — среда разработки.
+#   xhost +local:docker
+#   docker compose up            # сцена + ваше решение
+# Сценарий:  SCENARIO=public_2 docker compose up
+name: virtual-courier
+
+x-ros-env: &ros-env
+  ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:-42}
+  RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+  DISPLAY: ${DISPLAY:-:0}
+  QT_X11_NO_MITSHM: "1"
+
+services:
+  scene:
+    image: ghcr.io/ivanioshpa/virtual-courier-scene:latest
+    build: { context: ., dockerfile: docker/scene/Dockerfile }
+    container_name: vc_scene
+    environment:
+      <<: *ros-env
+      WEBOTS_GUI: ${WEBOTS_GUI:-true}
+      SCENARIO: /scenarios/${SCENARIO:-public_1}.yaml
+      VC_TEAM: ${VC_TEAM:-local}
+    ipc: host
+    networks: [general]
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev/dri:/dev/dri   # ускорение графики (Intel/AMD)
+      - ${SCENARIO_DIR:-./scene/scenarios}:/scenarios:ro
+      - ./results:/results
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f referee.py || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
+
+  solution:
+    image: ghcr.io/ivanioshpa/virtual-courier-solution:latest
+    build: { context: ., dockerfile: docker/solution/Dockerfile }
+    container_name: vc_solution
+    # command: bash          # раскомментируйте для ручного запуска (docker compose exec solution bash)
+    stdin_open: true
+    tty: true
+    environment:
+      <<: *ros-env
+      GUI: ${GUI:-true}
+    ipc: host
+    networks: [general]
+    depends_on:
+      scene:
+        condition: service_healthy
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev/dri:/dev/dri   # ускорение графики (Intel/AMD)
+      - ./src/solution:/ros_ws/src/solution
+
+networks:
+  general:
+    driver: bridge

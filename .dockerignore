@@ -1,0 +1,8 @@
+.git
+results
+src/solution/build
+src/solution/install
+src/solution/log
+scene/webots/worlds/*.wbt
+scene/webots/worlds/*.json
+**/__pycache__

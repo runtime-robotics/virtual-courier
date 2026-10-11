@@ -1,0 +1,14 @@
+# Прогон организаторов (используется tools/run_eval.sh):
+#   docker compose -f docker-compose.yaml -f docker-compose.eval.yaml up --abort-on-container-exit --exit-code-from scene
+# Решение работает без окон; Webots закрывается сам после финиша.
+services:
+  scene:
+    environment:
+      VC_EVAL: "true"
+      VC_ATTEMPT: ${VC_ATTEMPT:-1}
+      WEBOTS_MODE: ${WEBOTS_MODE:-realtime}
+  solution:
+    environment:
+      GUI: "false"
+    volumes:
+      - ${SOLUTION_DIR:-./src/solution}:/ros_ws/src/solution
