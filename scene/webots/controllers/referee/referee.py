@@ -46,7 +46,9 @@ FINISH_DELAY = 3.0        # с после окончания до закрыти
 
 # Объём лотка в системе координат робота: (xmin, xmax, ymin, ymax, zmin, zmax)
 TRAY_BOX = (-0.20, 0.05, -0.14, 0.14, 0.07, 0.25)
-TRAY_DROP_POINT = (-0.07, 0.0, 0.16)  # куда падает груз из бункера (в СК робота)
+# Места на лотке, куда падает груз из бункера (в СК робота): берётся первое свободное,
+# чтобы кубики не ложились друг на друга.
+TRAY_DROP_SLOTS = [(-0.07, 0.0, 0.16), (-0.07, 0.065, 0.16), (-0.07, -0.065, 0.16)]
 
 
 def seg_dist(px, py, ax, ay, bx, by):
@@ -285,7 +287,11 @@ class Referee(Node):
         st = self.stations[sid]
         st['issued'] = True
         p, R, _ = self.robot_pose()
-        pos = self.to_world(p, R, TRAY_DROP_POINT)
+        taken = [self.to_robot_frame(p, R, c['node'].getPosition()) for c in self.cargos.values()
+                 if c['node'] is not None and c['state'] == 'on_robot']
+        slot = next((sl for sl in TRAY_DROP_SLOTS
+                     if all(math.hypot(sl[0] - q[0], sl[1] - q[1]) > 0.045 for q in taken)), TRAY_DROP_SLOTS[0])
+        pos = self.to_world(p, R, slot)
         color = ' '.join(f'{c:.3f}' for c in st['color'])
         node = f'''DEF CARGO_{sid} Solid {{
   translation {pos[0]:.4f} {pos[1]:.4f} {pos[2]:.4f}

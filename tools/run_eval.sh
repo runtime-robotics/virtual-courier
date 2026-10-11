@@ -5,6 +5,7 @@
 #
 #   team      — короткое имя команды (латиница, без пробелов), попадёт в results/*.json
 #   git-url   — ссылка на форк команды (https://github.com/<user>/virtual-courier.git)
+#               или локальный каталог с src/solution (тогда ref не используется)
 #   ref       — тег/ветка/коммит (по умолчанию final)
 #   scenario  — имя сценария без .yaml (по умолчанию public_1)
 #   attempt   — номер попытки (по умолчанию 1)
@@ -29,10 +30,16 @@ WORK="$ROOT/eval_work/$TEAM"
 rm -rf "$WORK"
 mkdir -p "$WORK" "$ROOT/results"
 
-echo ">>> [$TEAM] клонирование $URL @ $REF"
-git clone --quiet "$URL" "$WORK/repo"
-git -C "$WORK/repo" checkout --quiet "$REF"
-COMMIT=$(git -C "$WORK/repo" rev-parse --short HEAD)
+if [ -d "$URL" ] && [ ! -d "$URL/.git" ]; then
+    echo ">>> [$TEAM] локальный каталог $URL"
+    cp -r "$URL" "$WORK/repo"
+    COMMIT="local"
+else
+    echo ">>> [$TEAM] клонирование $URL @ $REF"
+    git clone --quiet "$URL" "$WORK/repo"
+    git -C "$WORK/repo" checkout --quiet "$REF"
+    COMMIT=$(git -C "$WORK/repo" rev-parse --short HEAD)
+fi
 if [ ! -f "$WORK/repo/src/solution/launch/start.launch.py" ]; then
     echo "!!! в репозитории нет src/solution/launch/start.launch.py" >&2
     exit 2

@@ -33,7 +33,13 @@ docker run --rm -e VC_SNAPSHOT=/out/final_1.jpg -e SCENARIO=/scenarios/final_1.y
 ```
 
 Перед финалом прогоните на каждом закрытом сценарии эталонное решение организаторов, чтобы убедиться,
-что сценарий проходим за отведённое время.
+что сценарий проходим за отведённое время. Эталон и закрытые сценарии лежат в **приватном** репозитории
+организаторов `virtual-courier-reference` (в этот открытый репозиторий их не добавлять):
+
+```bash
+SCENARIO_DIR=../virtual-courier-reference/scenarios WEBOTS_GUI=false \
+  tools/run_eval.sh reference ../virtual-courier-reference - final_1 1
+```
 
 ## Зачётный прогон
 

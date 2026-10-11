@@ -210,6 +210,8 @@ def generate(sc):
     stations = sc['stations']
 
     check_boundary(start['cell'], start['side'], cols, rows, 'start')
+    if float(start.get('yaw_deg', 0)) % 90 != 0:
+        raise ValueError('start.yaw_deg должен быть кратен 90° (робот смотрит вдоль оси сетки)')
     for st in stations:
         check_boundary(st['cell'], st['side'], cols, rows, f"station {st['id']}")
 
