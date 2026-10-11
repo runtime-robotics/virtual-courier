@@ -23,7 +23,7 @@ from geometry_msgs.msg import Twist
 
 from controller import Supervisor
 
-# ---- баллы (см. docs/regulations_draft.md)
+# ---- баллы (должны совпадать с разделом 12 регламента)
 PTS_LEAVE_START = 5
 PTS_STATION_REACHED = 10
 PTS_CARGO_LOADED = 15
