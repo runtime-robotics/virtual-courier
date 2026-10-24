@@ -186,16 +186,19 @@ class Courier(Node):
                 f'вижу маркер {mid} ({MARKER_NAMES.get(mid, "?")}), x={cx:.0f}px, S={area:.0f}px²',
                 throttle_duration_sec=2.0)
 
-        if self.gui and self.image is not None:
-            view = self.image.copy()
-            for mid, cx, cy, _ in markers:
-                cv2.circle(view, (int(cx), int(cy)), 8, (0, 255, 0), 2)
-                cv2.putText(view, MARKER_NAMES.get(mid, str(mid)), (int(cx) + 10, int(cy)),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-            cv2.putText(view, f'state={self.state} cargo={self.cargo_count}', (10, 25),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            cv2.imshow('courier camera', view)
-            cv2.waitKey(1)
+
+        # Нет смысла запскать камеру, когда она есть уже в webots
+        #
+        # if self.gui and self.image is not None:
+        #     view = self.image.copy()
+        #     for mid, cx, cy, _ in markers:
+        #         cv2.circle(view, (int(cx), int(cy)), 8, (0, 255, 0), 2)
+        #         cv2.putText(view, MARKER_NAMES.get(mid, str(mid)), (int(cx) + 10, int(cy)),
+        #                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        #     cv2.putText(view, f'state={self.state} cargo={self.cargo_count}', (10, 25),
+        #                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+        #     cv2.imshow('courier camera', view)
+        #     cv2.waitKey(1)
 
 
 def main():

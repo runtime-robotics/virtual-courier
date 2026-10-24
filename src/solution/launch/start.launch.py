@@ -75,7 +75,10 @@ def generate_launch_description():
         DeclareLaunchArgument('gui', default_value='true'),
         DeclareLaunchArgument('slam', default_value='false'),
         DeclareLaunchArgument('nav', default_value='false'),
-        courier,
+
+        # disable instant start node
+        # courier,
+
         slam_toolbox,
         navigation,
         rviz,
