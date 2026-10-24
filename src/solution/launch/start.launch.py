@@ -17,7 +17,7 @@ from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchD
 from launch.conditions import IfCondition
 from launch.event_handlers import OnShutdown
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 
 PACKAGE = 'solution'
@@ -36,6 +36,7 @@ def generate_launch_description():
         name='courier',
         output='screen',
         parameters=[use_sim_time, {'gui': gui}],
+        condition=IfCondition(LaunchConfiguration('run')),
     )
 
     slam_toolbox = Node(
@@ -75,10 +76,8 @@ def generate_launch_description():
         DeclareLaunchArgument('gui', default_value='true'),
         DeclareLaunchArgument('slam', default_value='false'),
         DeclareLaunchArgument('nav', default_value='false'),
-
-        # disable instant start node
-        # courier,
-
+        DeclareLaunchArgument('run', default_value=PythonExpression(["'", gui, "' == 'false'"])),
+        courier,
         slam_toolbox,
         navigation,
         rviz,
