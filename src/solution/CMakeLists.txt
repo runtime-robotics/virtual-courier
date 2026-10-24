@@ -16,6 +16,7 @@ install(PROGRAMS
   scripts/courier_node.py
   DESTINATION lib/${PROJECT_NAME}
 )
+install(FILES scripts/navigation.py DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY launch config
   DESTINATION share/${PROJECT_NAME}/
